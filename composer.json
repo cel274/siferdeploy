@@ -1,14 +1,11 @@
 {
-    "name": "sifer/full-app",
-    "type": "project", 
+    "name": "sifer/api",
+    "type": "project",
     "require": {
         "php": "^8.0",
         "ext-pdo": "*",
         "ext-pdo_pgsql": "*",
         "ext-json": "*",
         "ext-mbstring": "*"
-    },
-    "require-dev": {
-        "heroku/heroku-buildpack-php": "*"
     }
 }
