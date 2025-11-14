@@ -1,0 +1,10 @@
+{
+    "build": {
+        "builder": "NULL"
+    },
+    "deploy": {
+        "startCommand": "php -S 0.0.0.0:${PORT} index.php",
+        "healthCheckPath": "/",
+        "healthCheckTimeout": 300
+    }
+}
