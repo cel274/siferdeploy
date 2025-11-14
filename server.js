@@ -9,7 +9,7 @@ app.use(express.static('.'));
 // Proxy para API PHP
 app.use('/api/*', (req, res) => {
   // Aquí iría la lógica para ejecutar PHP
-  // Por ahora redirigimos a un mensaje
+  // Por ahora redirigimos a un mensaje dasdas
   res.json({ 
     success: false, 
     message: 'PHP no disponible en este entorno',
