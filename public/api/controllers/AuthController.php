@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../config/jwt.php';
+require_once __DIR__ . '/config/jwt.php';
 require_once __DIR__ . '/../models/Usuario.php';
 
 class AuthController {
