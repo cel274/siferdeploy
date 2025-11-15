@@ -1,4 +1,5 @@
 <?php
+require_once __DIR__ . '/../config/jwt.php';
 require_once __DIR__ . '/../models/Usuario.php';
 
 class AuthController {
@@ -23,9 +24,19 @@ class AuthController {
             $user = $this->usuarioModel->login($data['nombre'], $data['contraseña']);
 
             if ($user) {
+                $payload = [
+                    'user_id' => $user['id'],
+                    'username' => $user['nombre'],
+                    'rol' => $user['rol'],
+                    'exp' => time() + (24 * 60 * 60)
+                ];
+                
+                $token = JWT::encode($payload);
+                
                 echo json_encode([
                     'success' => true,
                     'user' => $user,
+                    'token' => $token,
                     'message' => 'Login exitoso'
                 ]);
             } else {
