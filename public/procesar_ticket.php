@@ -16,7 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $productos = $_POST['productos'];
 
     try {
-        // Generar número de ticket
         $year = date('Y');
         $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM tickets WHERE YEAR(fecha_solicitud) = ?");
         $stmt->execute([$year]);
@@ -26,7 +25,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         $pdo->beginTransaction();
 
-        // Si es admin, el ticket se auto-aprueba. Si es usuario común, queda pendiente.
         if ($es_admin) {
             $estado = 'aprobado';
             $fecha_aprobacion = date('Y-m-d H:i:s');
@@ -37,23 +35,19 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $aprobado_por = null;
         }
 
-        // Insertar ticket principal
         $sqlTicket = "INSERT INTO tickets (numero_ticket, usuario_solicitante, tipo_solicitud, observaciones, estado, fecha_aprobacion, aprobado_por) VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmtTicket = $pdo->prepare($sqlTicket);
         $stmtTicket->execute([$numeroTicket, $usuario_id, $tipo_solicitud, $observaciones, $estado, $fecha_aprobacion, $aprobado_por]);
         $ticketId = $pdo->lastInsertId();
 
-        // Insertar items del ticket
         $sqlItem = "INSERT INTO ticket_items (ticket_id, producto_id, cantidad_solicitada, cantidad_aprobada) VALUES (?, ?, ?, ?)";
         $stmtItem = $pdo->prepare($sqlItem);
 
         foreach ($productos as $item) {
             if (!empty($item['id']) && !empty($item['cantidad']) && $item['cantidad'] > 0) {
-                // Si es admin, auto-aprobar las cantidades
                 $cantidad_aprobada = $es_admin ? $item['cantidad'] : 0;
                 $stmtItem->execute([$ticketId, $item['id'], $item['cantidad'], $cantidad_aprobada]);
                 
-                // Si es admin, restar inmediatamente del stock
                 if ($es_admin) {
                     $sql_update_stock = "UPDATE productos SET cantidad = cantidad - ? WHERE idProducto = ?";
                     $stmt_update = $pdo->prepare($sql_update_stock);

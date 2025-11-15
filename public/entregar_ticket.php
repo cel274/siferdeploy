@@ -18,20 +18,17 @@ $admin_id = $_SESSION['id'];
 try {
     $pdo->beginTransaction();
 
-    // Obtener los items aprobados para marcar como entregados
     $sql_items = "SELECT producto_id, cantidad_aprobada FROM ticket_items WHERE ticket_id = ? AND cantidad_aprobada > 0";
     $stmt_items = $pdo->prepare($sql_items);
     $stmt_items->execute([$ticket_id]);
     $items = $stmt_items->fetchAll();
 
-    // Actualizar cantidades entregadas
     foreach ($items as $item) {
         $sql_update_entregada = "UPDATE ticket_items SET cantidad_entregada = ? WHERE ticket_id = ? AND producto_id = ?";
         $stmt_entregada = $pdo->prepare($sql_update_entregada);
         $stmt_entregada->execute([$item['cantidad_aprobada'], $ticket_id, $item['producto_id']]);
     }
 
-    // Actualizar estado del ticket
     $sql_ticket = "UPDATE tickets SET estado = 'entregado', fecha_entrega = NOW() WHERE idTicket = ?";
     $stmt_ticket = $pdo->prepare($sql_ticket);
     $stmt_ticket->execute([$ticket_id]);

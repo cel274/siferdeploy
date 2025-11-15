@@ -7,13 +7,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = trim($_POST['contraseña']);
 
     try {
-        // Verificar primero si podemos conectar
         $stmt = $pdo->prepare("SELECT id, nombre, contraseña, rol FROM usuarios WHERE nombre = ?");
         $stmt->execute([$username]);
         $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if ($usuario) {
-            // Debug: ver qué hay en la base de datos
             error_log("Usuario encontrado: " . $usuario['nombre']);
             error_log("Hash en BD: " . $usuario['contraseña']);
             error_log("Contraseña ingresada: " . $password);

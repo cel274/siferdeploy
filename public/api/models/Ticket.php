@@ -13,17 +13,14 @@ class Ticket {
         try {
             $this->db->beginTransaction();
 
-            // Generar número de ticket
             $numero_ticket = 'TKT' . date('Y') . str_pad($this->getNextTicketNumber(), 5, '0', STR_PAD_LEFT);
 
-            // Crear ticket
             $stmt = $this->db->prepare("INSERT INTO {$this->table} 
                                       (numero_ticket, usuario_solicitante, tipo_solicitud) 
                                       VALUES (?, ?, ?)");
             $stmt->execute([$numero_ticket, $usuario_solicitante, $tipo_solicitud]);
             $ticket_id = $this->db->lastInsertId();
 
-            // Crear items del ticket
             foreach ($items as $item) {
                 $stmt = $this->db->prepare("INSERT INTO ticket_items 
                                           (ticket_id, producto_id, cantidad_solicitada) 
@@ -55,7 +52,6 @@ class Ticket {
             $stmt->execute([$usuario_id]);
             $tickets = $stmt->fetchAll();
 
-            // Obtener items para cada ticket
             foreach ($tickets as &$ticket) {
                 $ticket['items'] = $this->getTicketItems($ticket['idTicket']);
             }

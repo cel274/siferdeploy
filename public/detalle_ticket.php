@@ -15,7 +15,6 @@ if (!isset($_GET['id'])) {
 $ticket_id = intval($_GET['id']);
 $usuario_id = $_SESSION['id'];
 
-// Verificar que el ticket pertenece al usuario (o es admin)
 if ($_SESSION['rol'] != 1) {
     $stmt = $pdo->prepare("SELECT idTicket FROM tickets WHERE idTicket = ? AND usuario_solicitante = ?");
     $stmt->execute([$ticket_id, $usuario_id]);
@@ -28,7 +27,6 @@ if ($_SESSION['rol'] != 1) {
     }
 }
 
-// Obtener información del ticket
 $sql_ticket = "SELECT t.*, u.nombre as usuario_nombre, a.nombre as aprobador_nombre 
                FROM tickets t 
                LEFT JOIN usuarios u ON t.usuario_solicitante = u.id 
@@ -44,7 +42,6 @@ if (!$ticket) {
     exit();
 }
 
-// Obtener items del ticket
 $sql_items = "SELECT ti.*, p.nombreProducto, p.descripcion 
               FROM ticket_items ti 
               JOIN productos p ON ti.producto_id = p.idProducto 

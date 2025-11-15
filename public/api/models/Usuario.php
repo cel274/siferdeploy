@@ -18,7 +18,6 @@ class Usuario {
             $user = $stmt->fetch();
 
             if ($user && password_verify($contraseña, $user['contraseña'])) {
-                // Eliminar la contraseña del resultado
                 unset($user['contraseña']);
                 return $user;
             }
