@@ -1,0 +1,8 @@
+[phps]
+enabled = false
+
+[node]
+version = "18"
+
+[start]
+cmd = "node server.js"
