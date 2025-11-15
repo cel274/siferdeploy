@@ -1,5 +1,0 @@
-[phps]
-version = "8.1"
-
-[start]
-cmd = "php -S 0.0.0.0:$PORT -t ."
