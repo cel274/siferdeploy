@@ -7,26 +7,12 @@ class Database {
 
     private function __construct() {
         try {
-            $dsn = "pgsql:host=" . DatabaseConfig::HOST . 
-                   ";port=" . DatabaseConfig::PORT . 
-                   ";dbname=" . DatabaseConfig::DBNAME . 
-                   ";sslmode=require";
-            
-            $options = [
-                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-                PDO::ATTR_PERSISTENT => false
-            ];
-            
-            $this->pdo = new PDO(
-                $dsn, 
-                DatabaseConfig::USERNAME, 
-                DatabaseConfig::PASSWORD, 
-                $options
-            );
-            
+            $dsn = "mysql:host=" . DatabaseConfig::HOST . ";dbname=" . DatabaseConfig::DBNAME . ";charset=" . DatabaseConfig::CHARSET;
+            $this->pdo = new PDO($dsn, DatabaseConfig::USERNAME, DatabaseConfig::PASSWORD);
+            $this->pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            die("Error de conexión a Neon: " . $e->getMessage());
+            die("Error de conexión: " . $e->getMessage());
         }
     }
 
