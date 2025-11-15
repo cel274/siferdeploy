@@ -1,9 +1,10 @@
 <?php
 class DatabaseConfig {
-    const HOST = '127.0.0.1';
+    const HOST = 'shuttle.proxy.rlwy.net';
     const DBNAME = 'sifer';
     const USERNAME = 'root';
-    const PASSWORD = '';
+    const PASSWORD = 'TSuCpDkwTMYvSaaNxSMJHXKsifsdvZxv';
+    const PORT = '14747';
     const CHARSET = 'utf8mb4';
 }
 ?>

@@ -31,7 +31,7 @@ try {
         case $api_path === '/' && $method === 'GET':
             echo json_encode([
                 'success' => true,
-                'message' => 'API SIFER funcionando correctamente'
+                'message' => 'Aok'
             ]);
             break;
 
