@@ -1,13 +1,11 @@
 FROM php:8.2-apache
 
-# Instalar dependencias del sistema
+# Instalar dependencias del sistema básicas
 RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
     libzip-dev \
-    unzip \
-    zip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd zip mysqli pdo pdo_mysql
 
@@ -33,12 +31,6 @@ RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 # Copiar todos los archivos del proyecto
 COPY . /var/www/html/
-
-# Establecer el directorio de trabajo
-WORKDIR /var/www/html/
-
-# Instalar dependencias PHP si existen
-RUN if [ -f "composer.json" ]; then composer install --no-interaction --prefer-dist; fi
 
 # Dar permisos a Apache
 RUN chown -R www-data:www-data /var/www/html
