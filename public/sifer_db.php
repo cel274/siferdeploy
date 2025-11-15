@@ -2,7 +2,7 @@
 $host = 'localhost';
 $db   = 'sifer';
 $user = 'root';
-$pass = '';
+$pass = 'TSuCpDkwTMYvSaaNxSMJHXKsifsdvZxv';
 $charset = 'utf8mb4';
 
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
