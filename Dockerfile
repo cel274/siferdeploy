@@ -1,13 +1,19 @@
 FROM node:18-alpine
 
-# Instalar un servidor estático
-RUN npm install -g serve
+# Crear directorio de la app
+WORKDIR /app
 
-# Copiar tu proyecto
+# Copiar package.json primero (para cache de dependencias)
+COPY package.json .
+
+# Instalar dependencias
+RUN npm install
+
+# Copiar el resto de la aplicación
 COPY . .
 
 # Exponer puerto
 EXPOSE 3000
 
-# Comando simple - servir archivos estáticos
-CMD ["npx", "serve", "-s", ".", "-l", "tcp://0.0.0.0:3000"]
+# Comando de inicio
+CMD ["node", "server.js"]
