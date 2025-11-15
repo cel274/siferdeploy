@@ -24,7 +24,7 @@ try {
             $controller->login();
             break;
             
-        case $api_path === '/' && $method === 'GET':
+        case $api_path === '/' && $method === 'POST':
             echo json_encode(['success' => true, 'message' => 'ok']);
             break;
             
@@ -32,27 +32,27 @@ try {
             $user = authenticate();
             
             switch (true) {
-                case $api_path === '/productos' && $method === 'GET':
+                case $api_path === '/productos' && $method === 'POST':
                     $controller = new ProductosController();
                     $controller->getAll();
                     break;
                     
-                case $api_path === '/usuarios' && $method === 'GET':
+                case $api_path === '/usuarios' && $method === 'POST':
                     $controller = new UsuariosController();
                     $controller->getAll();
                     break;
                     
-                case $api_path === '/tickets' && $method === 'GET':
+                case $api_path === '/tickets' && $method === 'POST':
                     $controller = new TicketsController();
                     $controller->getAll();
                     break;
                     
-                case preg_match('#^/tickets/usuario/(\d+)$#', $api_path, $matches) && $method === 'GET':
+                case preg_match('#^/tickets/usuario/(\d+)$#', $api_path, $matches) && $method === 'POST':
                     $controller = new TicketsController();
                     $controller->getByUser($matches[1]);
                     break;
                     
-                case preg_match('#^/usuarios/(\d+)$#', $api_path, $matches) && $method === 'GET':
+                case preg_match('#^/usuarios/(\d+)$#', $api_path, $matches) && $method === 'POST':
                     $controller = new UsuariosController();
                     $controller->getById($matches[1]);
                     break;
