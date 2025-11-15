@@ -9,9 +9,9 @@ RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php?path=$1 [QSA,L]
 
 # Headers para API
-Header always set Access-Control-Allow-Origin "*"
-Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
-Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+#Header always set Access-Control-Allow-Origin "*"
+#Header always set Access-Control-Allow-Methods "GET, POST, PUT, DELETE, OPTIONS"
+#Header always set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
 
 # Manejar OPTIONS para CORS preflight
 RewriteCond %{REQUEST_METHOD} OPTIONS
