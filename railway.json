@@ -1,9 +1,9 @@
 {
   "build": {
-    "builder": "NIXPACKS"
+    "builder": "NIXPACKS",
+    "buildCommand": "composer install --no-dev --ignore-platform-reqs"
   },
   "deploy": {
-    "startCommand": "php -S 0.0.0.0:$PORT -t .",
-    "restartPolicyType": "ON_FAILURE"
+    "startCommand": "php-fpm && nginx -c /app/nginx.conf"
   }
 }

@@ -2,9 +2,9 @@
     "name": "cel274/sifer",
     "type": "project",
     "require": {
-        "php": "^8.0"
+        "php": "^8.2"
     },
     "scripts": {
-        "start": "php -S 0.0.0.0:$PORT"
+        "start": "php -S 0.0.0.0:$PORT -t ."
     }
 }
