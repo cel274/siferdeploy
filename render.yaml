@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: sifer-completo
+    env: php
+    plan: free
+    buildCommand: ""
+    startCommand: php -S 0.0.0.0:$PORT index.php
+    envVars:
+      - key: DATABASE_URL
+        value: postgresql://neondb_owner:mpg_2XdbVw802iYW&@ep-pollshed-sky-acsk3ur5-pooler.sa-east-1.aws.neon.tech:5432/sifer?sslmode=require
