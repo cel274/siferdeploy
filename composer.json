@@ -1,7 +1,4 @@
 {
     "name": "cel274/sifer",
-    "type": "project",
-    "require": {
-        "php": "^8.1"
-    }
+    "type": "project"
 }
