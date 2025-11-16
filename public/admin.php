@@ -15,7 +15,7 @@ if (!isset($_SESSION['rol']) || $_SESSION['rol'] != 1) {
 }
 
 try {
-    $pdo = new PDO("mysql:host=localhost;dbname=sifer;charset=utf8", "root", "");
+    $pdo = new PDO("mysql:host=shuttle.proxy.rlwy.net;port=14747;dbname=sifer;charset=utf8", "root", "TSuCpDkwTMYvSaaNxSMJHXKsifsdvZxv");
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 } catch (PDOException $e) {
     die("Error de conexión: " . $e->getMessage());
