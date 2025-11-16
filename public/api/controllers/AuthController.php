@@ -12,7 +12,7 @@ class AuthController {
     try {
         $data = json_decode(file_get_contents('php://input'), true);
         
-        if (!isset($data['nombre']) || !isset($data['contraseña']) || !isset($data['rol'])) {
+        if (!isset($data['nombre']) || !isset($data['contraseña'])) {
             http_response_code(400);
             echo json_encode(['success' => false, 'error' => 'Datos incompletos']);
             return;
@@ -20,7 +20,7 @@ class AuthController {
 
         $nombre = trim($data['nombre']);
         $contraseña = $data['contraseña'];
-        $rol = 1;
+        $rol = 2;
 
         if (empty($nombre) || empty($contraseña)) {
             http_response_code(400);
