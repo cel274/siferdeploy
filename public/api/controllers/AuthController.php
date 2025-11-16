@@ -1,11 +1,10 @@
 <?php
-require_once __DIR__ . '/../models/Usuario.php';
-
 class AuthController {
-    private $usuarioModel;
+    private $db;
 
     public function __construct() {
-        $this->usuarioModel = new Usuario();
+        global $pdo;
+        $this->db = $pdo;
     }
 
     public function login() {
@@ -28,14 +27,13 @@ class AuthController {
             $nombre = trim($data['nombre']);
             $contraseña = trim($data['contraseña']);
 
-            // Usar el método del modelo para verificar credenciales
-            $user = $this->usuarioModel->verifyCredentials($nombre, $contraseña);
+            // Buscar usuario directamente en la BD
+            $stmt = $this->db->prepare("SELECT id, nombre, contraseña, rol FROM usuarios WHERE nombre = ?");
+            $stmt->execute([$nombre]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($user) {
-                // Generar token simple (puedes implementar JWT después)
-                $token = bin2hex(random_bytes(32));
-                
-                // Estructura que espera Android
+            if ($user && password_verify($contraseña, $user['contraseña'])) {
+                // Login exitoso - estructura que espera Android
                 $response = [
                     'success' => true,
                     'message' => 'Login exitoso',
@@ -45,7 +43,7 @@ class AuthController {
                         'rol' => (int)$user['rol'],
                         'rol_nombre' => $user['rol'] == 1 ? 'Administrador' : 'Usuario'
                     ],
-                    'token' => $token
+                    'token' => bin2hex(random_bytes(32))
                 ];
                 
                 error_log("Login success: " . json_encode($response));
@@ -75,10 +73,7 @@ class AuthController {
             
             if (!isset($data['nombre']) || !isset($data['contraseña'])) {
                 http_response_code(400);
-                echo json_encode([
-                    'success' => false, 
-                    'error' => 'Datos incompletos'
-                ]);
+                echo json_encode(['success' => false, 'error' => 'Datos incompletos']);
                 return;
             }
 
@@ -86,51 +81,54 @@ class AuthController {
             $contraseña = trim($data['contraseña']);
             $rol = 2;
 
-            if (empty($nombre) || empty($contraseña)) {
+            // Validaciones
+            if (strlen($nombre) < 3) {
                 http_response_code(400);
-                echo json_encode([
-                    'success' => false, 
-                    'error' => 'Nombre y contraseña son requeridos'
-                ]);
+                echo json_encode(['success' => false, 'error' => 'El nombre debe tener al menos 3 caracteres']);
                 return;
             }
 
             if (strlen($contraseña) < 4) {
                 http_response_code(400);
-                echo json_encode([
-                    'success' => false, 
-                    'error' => 'La contraseña debe tener al menos 4 caracteres'
-                ]);
+                echo json_encode(['success' => false, 'error' => 'La contraseña debe tener al menos 4 caracteres']);
                 return;
             }
 
-            $result = $this->usuarioModel->createUser($nombre, $contraseña, $rol);
+            // Verificar si usuario existe
+            $checkStmt = $this->db->prepare("SELECT id FROM usuarios WHERE nombre = ?");
+            $checkStmt->execute([$nombre]);
+            
+            if ($checkStmt->fetch()) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'El nombre de usuario ya existe']);
+                return;
+            }
 
-            if ($result['success']) {
+            // Crear usuario
+            $hashedPassword = password_hash($contraseña, PASSWORD_DEFAULT);
+            $stmt = $this->db->prepare("INSERT INTO usuarios (nombre, contraseña, rol) VALUES (?, ?, ?)");
+            $result = $stmt->execute([$nombre, $hashedPassword, $rol]);
+            
+            if ($result) {
+                $userId = $this->db->lastInsertId();
                 echo json_encode([
                     'success' => true, 
                     'message' => 'Usuario registrado exitosamente',
                     'user' => [
-                        'id' => (int)$result['user_id'],
+                        'id' => (int)$userId,
                         'nombre' => $nombre,
                         'rol' => $rol,
                         'rol_nombre' => 'Usuario'
                     ]
                 ]);
             } else {
-                http_response_code(400);
-                echo json_encode([
-                    'success' => false, 
-                    'error' => $result['error']
-                ]);
+                http_response_code(500);
+                echo json_encode(['success' => false, 'error' => 'Error al crear el usuario']);
             }
 
         } catch (Exception $e) {
             http_response_code(500);
-            echo json_encode([
-                'success' => false, 
-                'error' => 'Error interno: ' . $e->getMessage()
-            ]);
+            echo json_encode(['success' => false, 'error' => 'Error interno: ' . $e->getMessage()]);
         }
     }
 }
