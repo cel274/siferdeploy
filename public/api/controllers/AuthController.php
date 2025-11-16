@@ -4,7 +4,21 @@ class AuthController {
 
     public function __construct() {
         global $pdo;
+        
+        // Verificar que $pdo esté disponible
+        if (!isset($pdo)) {
+            error_log("ERROR: $pdo no está disponible en AuthController");
+            header('Content-Type: application/json');
+            http_response_code(500);
+            echo json_encode([
+                'success' => false, 
+                'error' => 'Error de configuración de base de datos'
+            ]);
+            exit();
+        }
+        
         $this->db = $pdo;
+        error_log("DEBUG: Conexión a BD establecida en AuthController");
     }
 
     public function login() {
@@ -19,7 +33,7 @@ class AuthController {
                 http_response_code(400);
                 echo json_encode([
                     'success' => false,
-                    'error' => 'Faltan campos obligatorios'
+                    'error' => 'Faltan campos obligatorios: nombre y contraseña'
                 ]);
                 return;
             }
@@ -27,28 +41,49 @@ class AuthController {
             $nombre = trim($data['nombre']);
             $contraseña = trim($data['contraseña']);
 
-            // Buscar usuario directamente en la BD
+            if (empty($nombre) || empty($contraseña)) {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Nombre y contraseña no pueden estar vacíos'
+                ]);
+                return;
+            }
+
+            // Buscar usuario en la BD
             $stmt = $this->db->prepare("SELECT id, nombre, contraseña, rol FROM usuarios WHERE nombre = ?");
             $stmt->execute([$nombre]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-            if ($user && password_verify($contraseña, $user['contraseña'])) {
-                // Login exitoso - estructura que espera Android
-                $response = [
-                    'success' => true,
-                    'message' => 'Login exitoso',
-                    'user' => [
-                        'id' => (int)$user['id'],
-                        'nombre' => $user['nombre'],
-                        'rol' => (int)$user['rol'],
-                        'rol_nombre' => $user['rol'] == 1 ? 'Administrador' : 'Usuario'
-                    ],
-                    'token' => bin2hex(random_bytes(32))
-                ];
+            if ($user) {
+                error_log("Usuario encontrado: " . $user['nombre']);
                 
-                error_log("Login success: " . json_encode($response));
-                echo json_encode($response);
+                if (password_verify($contraseña, $user['contraseña'])) {
+                    // Login exitoso
+                    $response = [
+                        'success' => true,
+                        'message' => 'Login exitoso',
+                        'user' => [
+                            'id' => (int)$user['id'],
+                            'nombre' => $user['nombre'],
+                            'rol' => (int)$user['rol'],
+                            'rol_nombre' => $user['rol'] == 1 ? 'Administrador' : 'Usuario'
+                        ],
+                        'token' => bin2hex(random_bytes(32))
+                    ];
+                    
+                    error_log("Login success: " . json_encode($response));
+                    echo json_encode($response);
+                } else {
+                    error_log("Contraseña incorrecta para usuario: " . $nombre);
+                    http_response_code(401);
+                    echo json_encode([
+                        'success' => false,
+                        'error' => 'Credenciales incorrectas'
+                    ]);
+                }
             } else {
+                error_log("Usuario no encontrado: " . $nombre);
                 http_response_code(401);
                 echo json_encode([
                     'success' => false,
@@ -127,6 +162,7 @@ class AuthController {
             }
 
         } catch (Exception $e) {
+            error_log("Register error: " . $e->getMessage());
             http_response_code(500);
             echo json_encode(['success' => false, 'error' => 'Error interno: ' . $e->getMessage()]);
         }
