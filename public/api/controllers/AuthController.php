@@ -20,7 +20,7 @@ class AuthController {
 
         $nombre = trim($data['nombre']);
         $contraseña = $data['contraseña'];
-        $rol = intval($data['rol']);
+        $rol = 1;
 
         if (empty($nombre) || empty($contraseña)) {
             http_response_code(400);
