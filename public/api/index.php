@@ -26,6 +26,11 @@ try {
             $controller = new AuthController();
             $controller->login();
             break;
+
+        case $api_path === '/register' && $method === 'POST':
+            $controller = new AuthController();
+            $controller->register();
+            break;
             
         case $api_path === '/' && $method === 'POST':
             echo json_encode(['success' => true, 'message' => 'ok']);
@@ -45,10 +50,6 @@ try {
                     $controller->getAll();
                     break;
                     
-                case $api_path === '/register' && $method === 'POST':
-                    $controller = new AuthController();
-                    $controller->register();
-                    break;
                     
                 case $api_path === '/tickets' && $method === 'GET':
                     $controller = new TicketsController();
