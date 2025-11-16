@@ -11,45 +11,42 @@ class Usuario {
 
     public function register($nombre, $contraseña, $rol) {
         try {
-            $this->db->begin_transaction();
+            $this->db->beginTransaction();
 
             $stmt = $this->db->prepare("SELECT id FROM usuarios WHERE nombre = ?");
-            $stmt->bind_param("s", $nombre);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $stmt->execute([$nombre]);
             
-            if ($result->num_rows > 0) {
+            if ($stmt->fetch()) {
+                $this->db->rollBack();
                 return ['success' => false, 'error' => 'El nombre de usuario ya existe'];
             }
-            $stmt->close();
 
             $stmt = $this->db->prepare("SELECT idRol FROM roles WHERE idRol = ?");
-            $stmt->bind_param("i", $rol);
-            $stmt->execute();
-            $result = $stmt->get_result();
+            $stmt->execute([$rol]);
             
-            if ($result->num_rows === 0) {
+            if (!$stmt->fetch()) {
+                $this->db->rollBack();
                 return ['success' => false, 'error' => 'El rol especificado no existe'];
             }
-            $stmt->close();
 
             $password_hash = password_hash($contraseña, PASSWORD_DEFAULT);
-
             $stmt = $this->db->prepare("INSERT INTO usuarios (nombre, contraseña, rol) VALUES (?, ?, ?)");
-            $stmt->bind_param("ssi", $nombre, $password_hash, $rol);
             
-            if ($stmt->execute()) {
-                $user_id = $this->db->insert_id;
+            if ($stmt->execute([$nombre, $password_hash, $rol])) {
+                $user_id = $this->db->lastInsertId();
                 $this->db->commit();
-                return ['success' => true, 'user_id' => $user_id];
+                return ['success' true, 'user_id' => $user_id];
             } else {
-                $this->db->rollback();
+                $this->db->rollBack();
                 return ['success' => false, 'error' => 'Error al crear el usuario'];
             }
 
         } catch (Exception $e) {
-            $this->db->rollback();
-            throw new Exception("Error en registro: " . $e->getMessage());
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            error_log("Error en register: " . $e->getMessage());
+            return ['success' => false, 'error' => 'Error en el registro: ' . $e->getMessage()];
         }
     }
 
@@ -59,7 +56,7 @@ class Usuario {
                                       INNER JOIN roles r ON u.rol = r.idRol 
                                       WHERE u.nombre = ?");
             $stmt->execute([$nombre]);
-            $user = $stmt->fetch();
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user && password_verify($contraseña, $user['contraseña'])) {
                 unset($user['contraseña']);
@@ -67,6 +64,7 @@ class Usuario {
             }
             return false;
         } catch (PDOException $e) {
+            error_log("Error en login: " . $e->getMessage());
             throw new Exception("Error en login: " . $e->getMessage());
         }
     }
@@ -78,8 +76,9 @@ class Usuario {
                                       INNER JOIN roles r ON u.rol = r.idRol 
                                       WHERE u.id = ?");
             $stmt->execute([$id]);
-            return $stmt->fetch();
+            return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            error_log("Error al obtener usuario: " . $e->getMessage());
             throw new Exception("Error al obtener usuario: " . $e->getMessage());
         }
     }
@@ -90,8 +89,9 @@ class Usuario {
                                     FROM {$this->table} u 
                                     INNER JOIN roles r ON u.rol = r.idRol 
                                     ORDER BY u.id");
-            return $stmt->fetchAll();
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
+            error_log("Error al obtener usuarios: " . $e->getMessage());
             throw new Exception("Error al obtener usuarios: " . $e->getMessage());
         }
     }
