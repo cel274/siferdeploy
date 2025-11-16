@@ -1,6 +1,5 @@
 
 <?php
-session_start();
 require 'sifer_db.php';
 
 if (!isset($_SESSION['nombre']) || !isset($_SESSION['id'])) {

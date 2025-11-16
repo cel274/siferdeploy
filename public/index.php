@@ -84,7 +84,7 @@ if (!isset($_SESSION['nombre'])) {
                 <li class="">
                     <a href="login.php">
                         <i class='bx bx-user-hexagon icon' ></i>
-                        <span class="text nav-text">Iniciar Sesión</span>
+                        <span class="text nav-text">    <?php echo isset($_SESSION['nombre']) ? 'Cerrar sesión' : 'Iniciar sesión'; ?></span>
                     </a>
                 </li>
 
