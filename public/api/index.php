@@ -42,14 +42,29 @@ try {
                     $controller->getAll();
                     break;
                     
-                case $api_path === '/tickets' && $method === 'POST':
+                case $api_path === '/tickets' && $method === 'GET':
                     $controller = new TicketsController();
                     $controller->getAll();
+                    break;
+                    
+                case $api_path === '/tickets' && $method === 'POST':
+                    $controller = new TicketsController();
+                    $controller->create();
+                    break;
+                    
+                case $api_path === '/tickets/estado' && $method === 'PUT':
+                    $controller = new TicketsController();
+                    $controller->updateStatus();
                     break;
                     
                 case preg_match('#^/tickets/usuario/(\d+)$#', $api_path, $matches) && $method === 'POST':
                     $controller = new TicketsController();
                     $controller->getByUser($matches[1]);
+                    break;
+
+                case $api_path === '/tickets/cant' && $method === 'PUT':
+                    $controller = new TicketsController();
+                    $controller->updateApprovedQuantities();
                     break;
                     
                 case preg_match('#^/usuarios/(\d+)$#', $api_path, $matches) && $method === 'POST':

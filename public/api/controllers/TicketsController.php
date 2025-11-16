@@ -57,7 +57,40 @@ class TicketsController {
             ]);
         }
     }
+    public function updateApprovedQuantities() {
+        header('Content-Type: application/json');
+        
+        try {
+            $data = json_decode(file_get_contents('php://input'), true);
+            
+            if (!isset($data['ticket_id']) || !isset($data['items'])) {
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Faltan campos obligatorios']);
+                return;
+            }
 
+            $success = $this->ticketModel->updateApprovedQuantities($data['ticket_id'], $data['items']);
+
+            if ($success) {
+                echo json_encode([
+                    'success' => true,
+                    'message' => 'Cantidades aprobadas actualizadas correctamente'
+                ]);
+            } else {
+                http_response_code(400);
+                echo json_encode([
+                    'success' => false,
+                    'error' => 'Error al actualizar cantidades aprobadas'
+                ]);
+            }
+        } catch (Exception $e) {
+            http_response_code(500);
+            echo json_encode([
+                'success' => false,
+                'error' => 'Error del servidor: ' . $e->getMessage()
+            ]);
+        }
+    }
     public function getAll() {
         header('Content-Type: application/json');
         
