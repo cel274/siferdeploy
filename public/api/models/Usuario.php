@@ -35,7 +35,7 @@ class Usuario {
             if ($stmt->execute([$nombre, $password_hash, $rol])) {
                 $user_id = $this->db->lastInsertId();
                 $this->db->commit();
-                return ['success' true, 'user_id' => $user_id];
+                return ['success' => true, 'user_id' => $user_id];
             } else {
                 $this->db->rollBack();
                 return ['success' => false, 'error' => 'Error al crear el usuario'];
