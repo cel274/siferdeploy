@@ -3,8 +3,15 @@ session_start();
 require 'sifer_db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $username = trim($_POST['usuario']);
+    // Cambiar para aceptar ambos nombres (usuario o nombre)
+    $username = trim($_POST['nombre'] ?? $_POST['usuario'] ?? '');
     $password = trim($_POST['contraseña']);
+
+    if (empty($username) || empty($password)) {
+        $_SESSION['login_error'] = "Usuario y contraseña son requeridos.";
+        header("Location: login.php");
+        exit();
+    }
 
     try {
         $stmt = $pdo->prepare("SELECT id, nombre, contraseña, rol FROM usuarios WHERE nombre = ?");
@@ -14,7 +21,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($usuario) {
             error_log("Usuario encontrado: " . $usuario['nombre']);
             error_log("Hash en BD: " . $usuario['contraseña']);
-            error_log("Contraseña ingresada: " . $password);
             
             if (password_verify($password, $usuario['contraseña'])) {
                 $_SESSION['id'] = $usuario['id'];
@@ -22,28 +28,89 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['rol'] = $usuario['rol'];
                 
                 error_log("Login EXITOSO - Usuario: " . $usuario['nombre']);
-                header("Location: index.php");
-                exit();
+                
+                // Para API - devolver JSON
+                if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => true,
+                        'message' => 'Login exitoso',
+                        'user' => [
+                            'id' => $usuario['id'],
+                            'nombre' => $usuario['nombre'],
+                            'rol' => $usuario['rol'],
+                            'rol_nombre' => $usuario['rol'] == 1 ? 'Administrador' : 'Usuario'
+                        ],
+                        'token' => bin2hex(random_bytes(16)) // o tu lógica de tokens
+                    ]);
+                    exit();
+                } else {
+                    // Para web
+                    header("Location: index.php");
+                    exit();
+                }
             } else {
                 error_log("Contraseña INCORRECTA para usuario: " . $username);
-                $_SESSION['login_error'] = "Contraseña incorrecta.";
-                header("Location: login.php");
-                exit();
+                $errorMsg = "Contraseña incorrecta.";
+                
+                if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+                    header('Content-Type: application/json');
+                    echo json_encode([
+                        'success' => false,
+                        'error' => $errorMsg
+                    ]);
+                    exit();
+                } else {
+                    $_SESSION['login_error'] = $errorMsg;
+                    header("Location: login.php");
+                    exit();
+                }
             }
         } else {
             error_log("Usuario NO encontrado: " . $username);
-            $_SESSION['login_error'] = "Usuario no encontrado.";
-            header("Location: login.php");
-            exit();
+            $errorMsg = "Usuario no encontrado.";
+            
+            if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+                header('Content-Type: application/json');
+                echo json_encode([
+                    'success' => false,
+                    'error' => $errorMsg
+                ]);
+                exit();
+            } else {
+                $_SESSION['login_error'] = $errorMsg;
+                header("Location: login.php");
+                exit();
+            }
         }
     } catch (PDOException $e) {
         error_log("Error PDO: " . $e->getMessage());
-        $_SESSION['login_error'] = "Error de sistema. Intente nuevamente.";
+        $errorMsg = "Error de sistema. Intente nuevamente.";
+        
+        if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+            header('Content-Type: application/json');
+            echo json_encode([
+                'success' => false,
+                'error' => $errorMsg
+            ]);
+            exit();
+        } else {
+            $_SESSION['login_error'] = $errorMsg;
+            header("Location: login.php");
+            exit();
+        }
+    }
+} else {
+    if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
+        header('Content-Type: application/json');
+        echo json_encode([
+            'success' => false,
+            'error' => 'Método no permitido'
+        ]);
+        exit();
+    } else {
         header("Location: login.php");
         exit();
     }
-} else {
-    header("Location: login.php");
-    exit();
 }
 ?>
