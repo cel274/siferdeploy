@@ -10,6 +10,9 @@ require_once __DIR__ . '/controllers/UsuariosController.php';
 
 header('Content-Type: application/json');
 
+$rawBody = file_get_contents('php://input');
+error_log("REQUEST BODY: " . $rawBody);
+
 $request_uri = $_SERVER['REQUEST_URI'];
 $method = $_SERVER['REQUEST_METHOD'];
 
