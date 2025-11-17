@@ -12,16 +12,22 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['rechazar_ticket'])) {
     $usuario_id = $_SESSION['id'];
 
     try {
+        // Primero obtener el número de ticket para el mensaje
+        $sqlTicket = "SELECT numero_ticket FROM tickets WHERE idTicket = ?";
+        $stmtTicket = $pdo->prepare($sqlTicket);
+        $stmtTicket->execute([$ticket_id]);
+        $ticket = $stmtTicket->fetch();
+
         $sqlRechazar = "UPDATE tickets SET 
                        estado = 'rechazado', 
                        fecha_aprobacion = NOW(), 
                        aprobado_por = ? 
-                       WHERE id = ? AND estado = 'pendiente'";
+                       WHERE idTicket = ? AND estado = 'pendiente'";
         $stmtRechazar = $pdo->prepare($sqlRechazar);
         $stmtRechazar->execute([$usuario_id, $ticket_id]);
 
         if ($stmtRechazar->rowCount() > 0) {
-            $_SESSION['success'] = "✅ Ticket rechazado correctamente";
+            $_SESSION['success'] = "✅ Ticket #" . $ticket['numero_ticket'] . " rechazado correctamente";
         } else {
             $_SESSION['error'] = "❌ No se pudo rechazar el ticket";
         }
