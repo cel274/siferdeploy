@@ -14,11 +14,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
     try {
         $pdo->beginTransaction();
 
-        // 1. Verificar que el ticket existe y está pendiente
+        // Verificar que el ticket existe y está pendiente
         $sqlCheck = "SELECT t.*, u.nombre as solicitante 
                     FROM tickets t 
                     JOIN usuarios u ON t.usuario_solicitante = u.id 
-                    WHERE t.id = ? AND t.estado = 'pendiente'";
+                    WHERE t.idTicket = ? AND t.estado = 'pendiente'";
         $stmtCheck = $pdo->prepare($sqlCheck);
         $stmtCheck->execute([$ticket_id]);
         $ticket = $stmtCheck->fetch();
@@ -27,7 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
             throw new Exception("Ticket no encontrado o ya fue procesado");
         }
 
-        // 2. Obtener los items del ticket
+        // Obtener los items del ticket
         $sqlItems = "SELECT ti.*, p.nombreProducto, p.cantidad as stock_actual 
                     FROM ticket_items ti 
                     JOIN productos p ON ti.producto_id = p.idProducto 
@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
             throw new Exception("El ticket no tiene items");
         }
 
-        // 3. Verificar stock disponible
+        // Verificar stock disponible
         $stockErrors = [];
         foreach ($items as $item) {
             if ($item['cantidad_solicitada'] > $item['stock_actual']) {
@@ -52,21 +52,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
             throw new Exception("Stock insuficiente: " . implode(", ", $stockErrors));
         }
 
-        // 4. Actualizar ticket a aprobado
+        // Actualizar ticket a aprobado
         $sqlAprobar = "UPDATE tickets SET 
                       estado = 'aprobado', 
                       fecha_aprobacion = NOW(), 
                       aprobado_por = ? 
-                      WHERE id = ?";
+                      WHERE idTicket = ?";
         $stmtAprobar = $pdo->prepare($sqlAprobar);
         $stmtAprobar->execute([$usuario_id, $ticket_id]);
 
-        // 5. Actualizar items con cantidad aprobada
+        // Actualizar items con cantidad aprobada
         $sqlUpdateItem = "UPDATE ticket_items SET cantidad_aprobada = cantidad_solicitada WHERE ticket_id = ?";
         $stmtUpdateItem = $pdo->prepare($sqlUpdateItem);
         $stmtUpdateItem->execute([$ticket_id]);
 
-        // 6. Descontar del inventario
+        // Descontar del inventario
         $sqlUpdateStock = "UPDATE productos p 
                           JOIN ticket_items ti ON p.idProducto = ti.producto_id 
                           SET p.cantidad = p.cantidad - ti.cantidad_solicitada 
@@ -86,7 +86,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
     header("Location: tickets.php");
     exit();
 } else {
-    // Si no es POST, redirigir
     header("Location: tickets.php");
     exit();
 }
