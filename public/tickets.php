@@ -343,11 +343,15 @@ $es_admin = ($_SESSION['rol'] == 1);
         </div>
     </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let itemCount = 1;
+   <script>
+    // Solucionar error JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tu código existente para agregar items...
+        let itemCount = 1;
 
-            document.getElementById('agregar-item').addEventListener('click', function() {
+        const agregarItemBtn = document.getElementById('agregar-item');
+        if (agregarItemBtn) {
+            agregarItemBtn.addEventListener('click', function() {
                 const container = document.getElementById('items-container');
                 const newItem = document.createElement('div');
                 newItem.className = 'item-row';
@@ -381,20 +385,22 @@ $es_admin = ($_SESSION['rol'] == 1);
                     }
                 });
             });
+        }
 
-            document.querySelectorAll('.remover-item').forEach(button => {
-                button.addEventListener('click', function() {
-                    if (document.querySelectorAll('.item-row').length > 1) {
-                        this.closest('.item-row').remove();
-                    }
-                });
+        // Manejar botones de remover existentes
+        document.querySelectorAll('.remover-item').forEach(button => {
+            button.addEventListener('click', function() {
+                if (document.querySelectorAll('.item-row').length > 1) {
+                    this.closest('.item-row').remove();
+                }
             });
         });
+    });
 
-        function verDetalle(ticketId) {
-            window.location.href = 'detalle_ticket.php?id=' + ticketId;
-        }
-    </script>
+    function verDetalle(ticketId) {
+        window.location.href = 'detalle_ticket.php?id=' + ticketId;
+    }
+</script>
     <script src="./scripts/script.js"></script>
 </body>
 </html>
