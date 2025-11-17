@@ -7,7 +7,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password = ($_POST['contraseña']);
     $default_rol = 2;
 
-    if(strlen($username) < 3 || strlen($password) < 4){
+    if(strlen($username) < 6 || strlen($password) < 6){
         $_SESSION['register_error'] = "Usuario o contraseña demasiado cortos.";
         header("Location: registro.php");
         exit();
