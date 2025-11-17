@@ -14,22 +14,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['devolver_ticket'])) {
     try {
         $pdo->beginTransaction();
 
-        // Verificar que el ticket esté aprobado y no devuelto
-        $sqlCheck = "SELECT estado, estado_devolucion FROM tickets WHERE id = ?";
+        // Verificar que el ticket esté aprobado
+        $sqlCheck = "SELECT * FROM tickets WHERE idTicket = ? AND estado = 'aprobado'";
         $stmtCheck = $pdo->prepare($sqlCheck);
         $stmtCheck->execute([$ticket_id]);
         $ticket = $stmtCheck->fetch();
 
         if (!$ticket) {
-            throw new Exception("Ticket no encontrado");
-        }
-
-        if ($ticket['estado'] != 'aprobado') {
-            throw new Exception("Solo se pueden devolver tickets aprobados");
-        }
-
-        if ($ticket['estado_devolucion'] == 'completada') {
-            throw new Exception("Este ticket ya fue devuelto");
+            throw new Exception("Ticket no encontrado o no está aprobado");
         }
 
         // Devolver herramientas al inventario
@@ -45,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['devolver_ticket'])) {
                        fecha_devolucion = NOW(), 
                        devuelto_por = ?, 
                        estado_devolucion = 'completada' 
-                       WHERE id = ?";
+                       WHERE idTicket = ?";
         $stmtDevolver = $pdo->prepare($sqlDevolver);
         $stmtDevolver->execute([$usuario_id, $ticket_id]);
 
