@@ -23,11 +23,8 @@ function authenticate() {
         exit;
     }
     
-    if ($payload['rol'] != 1) {
-        http_response_code(403);
-        echo json_encode(['success' => false, 'error' => 'No estás autorizado']);
-        exit;
-    }
+    // ✅ VERIFICACIÓN DE ROL ELIMINADA - Ahora cualquier usuario autenticado puede pasar
+    // Los permisos específicos se manejarán en index.php para cada endpoint
     
     return $payload;
 }
