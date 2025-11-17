@@ -305,33 +305,33 @@ $es_admin = ($_SESSION['rol'] == 1);
                             </td>
                             <td><?php echo date('d/m/Y H:i', strtotime($ticket['fecha_solicitud'])); ?></td>
                             <td>
-                                <div class="action-buttons">
-                                    <button class="btn btn-primary btn-sm" onclick="verDetalle(<?php echo $ticket['id']; ?>)">
-                                        👁️ Ver
-                                    </button>
-                                    
-                                    <!-- Botones condicionales para admin -->
-                                    <?php if ($es_admin): ?>
-                                        <?php if ($ticket['estado'] == 'pendiente'): ?>
-                                            <form method="POST" action="aprobar_ticket.php" style="display: inline;">
-                                                <input type="hidden" name="ticket_id" value="<?= $ticket['id'] ?>">
-                                                <button type="submit" name="aprobar_ticket" class="btn btn-success btn-sm">✅ Aprobar</button>
-                                            </form>
-                                            <form method="POST" action="rechazar_ticket.php" style="display: inline;">
-                                                <input type="hidden" name="ticket_id" value="<?= $ticket['id'] ?>">
-                                                <button type="submit" name="rechazar_ticket" class="btn btn-danger btn-sm">❌ Rechazar</button>
-                                            </form>
-                                        <?php elseif ($ticket['estado'] == 'aprobado' && (!isset($ticket['estado_devolucion']) || $ticket['estado_devolucion'] == 'pendiente')): ?>
-                                            <form method="POST" action="devolver_ticket.php" style="display: inline;">
-                                                <input type="hidden" name="ticket_id" value="<?= $ticket['id'] ?>">
-                                                <button type="submit" name="devolver_ticket" class="btn btn-warning btn-sm">🔄 Devolver</button>
-                                            </form>
-                                        <?php elseif (isset($ticket['estado_devolucion']) && $ticket['estado_devolucion'] == 'completada'): ?>
-                                            <span class="badge bg-success">✅ Devuelto</span>
-                                        <?php endif; ?>
-                                    <?php endif; ?>
-                                </div>
-                            </td>
+    <div class="action-buttons">
+        <button class="btn btn-primary btn-sm" onclick="verDetalle(<?php echo $ticket['idTicket']; ?>)">
+            👁️ Ver
+        </button>
+        
+        <!-- Botones condicionales para admin -->
+        <?php if ($es_admin): ?>
+            <?php if ($ticket['estado'] == 'pendiente'): ?>
+                <form method="POST" action="aprobar_ticket.php" style="display: inline;">
+                    <input type="hidden" name="ticket_id" value="<?= $ticket['idTicket'] ?>">
+                    <button type="submit" name="aprobar_ticket" class="btn btn-success btn-sm">✅ Aprobar</button>
+                </form>
+                <form method="POST" action="rechazar_ticket.php" style="display: inline;">
+                    <input type="hidden" name="ticket_id" value="<?= $ticket['idTicket'] ?>">
+                    <button type="submit" name="rechazar_ticket" class="btn btn-danger btn-sm">❌ Rechazar</button>
+                </form>
+            <?php elseif ($ticket['estado'] == 'aprobado' && (!isset($ticket['estado_devolucion']) || $ticket['estado_devolucion'] == 'pendiente')): ?>
+                <form method="POST" action="devolver_ticket.php" style="display: inline;">
+                    <input type="hidden" name="ticket_id" value="<?= $ticket['idTicket'] ?>">
+                    <button type="submit" name="devolver_ticket" class="btn btn-warning btn-sm">🔄 Devolver</button>
+                </form>
+            <?php elseif (isset($ticket['estado_devolucion']) && $ticket['estado_devolucion'] == 'completada'): ?>
+                <span class="badge bg-success">✅ Devuelto</span>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
