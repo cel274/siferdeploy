@@ -14,8 +14,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
     try {
         $pdo->beginTransaction();
 
-        // Obtener los items del ticket
-        $sqlItems = "SELECT ti.*, p.nombre as producto_nombre, p.cantidad as stock_actual 
+        // 1. Verificar que el ticket existe y está pendiente
+        $sqlCheck = "SELECT t.*, u.nombre as solicitante 
+                    FROM tickets t 
+                    JOIN usuarios u ON t.usuario_solicitante = u.id 
+                    WHERE t.id = ? AND t.estado = 'pendiente'";
+        $stmtCheck = $pdo->prepare($sqlCheck);
+        $stmtCheck->execute([$ticket_id]);
+        $ticket = $stmtCheck->fetch();
+
+        if (!$ticket) {
+            throw new Exception("Ticket no encontrado o ya fue procesado");
+        }
+
+        // 2. Obtener los items del ticket
+        $sqlItems = "SELECT ti.*, p.nombreProducto, p.cantidad as stock_actual 
                     FROM ticket_items ti 
                     JOIN productos p ON ti.producto_id = p.idProducto 
                     WHERE ti.ticket_id = ?";
@@ -23,34 +36,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
         $stmtItems->execute([$ticket_id]);
         $items = $stmtItems->fetchAll();
 
-        // Verificar stock disponible antes de aprobar
+        if (empty($items)) {
+            throw new Exception("El ticket no tiene items");
+        }
+
+        // 3. Verificar stock disponible
+        $stockErrors = [];
         foreach ($items as $item) {
             if ($item['cantidad_solicitada'] > $item['stock_actual']) {
-                throw new Exception("Stock insuficiente para: " . $item['producto_nombre'] . 
-                                  ". Solicitado: " . $item['cantidad_solicitada'] . 
-                                  ", Disponible: " . $item['stock_actual']);
+                $stockErrors[] = $item['nombreProducto'] . " (Solicitado: " . $item['cantidad_solicitada'] . ", Disponible: " . $item['stock_actual'] . ")";
             }
         }
 
-        // Actualizar ticket a aprobado
+        if (!empty($stockErrors)) {
+            throw new Exception("Stock insuficiente: " . implode(", ", $stockErrors));
+        }
+
+        // 4. Actualizar ticket a aprobado
         $sqlAprobar = "UPDATE tickets SET 
                       estado = 'aprobado', 
                       fecha_aprobacion = NOW(), 
                       aprobado_por = ? 
-                      WHERE id = ? AND estado = 'pendiente'";
+                      WHERE id = ?";
         $stmtAprobar = $pdo->prepare($sqlAprobar);
         $stmtAprobar->execute([$usuario_id, $ticket_id]);
 
-        if ($stmtAprobar->rowCount() == 0) {
-            throw new Exception("Ticket no encontrado o ya fue procesado");
-        }
-
-        // Actualizar items con cantidad aprobada y descontar stock
+        // 5. Actualizar items con cantidad aprobada
         $sqlUpdateItem = "UPDATE ticket_items SET cantidad_aprobada = cantidad_solicitada WHERE ticket_id = ?";
         $stmtUpdateItem = $pdo->prepare($sqlUpdateItem);
         $stmtUpdateItem->execute([$ticket_id]);
 
-        // Descontar del inventario
+        // 6. Descontar del inventario
         $sqlUpdateStock = "UPDATE productos p 
                           JOIN ticket_items ti ON p.idProducto = ti.producto_id 
                           SET p.cantidad = p.cantidad - ti.cantidad_solicitada 
@@ -59,13 +75,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
         $stmtUpdateStock->execute([$ticket_id]);
 
         $pdo->commit();
-        $_SESSION['success'] = "✅ Ticket aprobado y stock actualizado correctamente";
+        
+        $_SESSION['success'] = "✅ Ticket #" . $ticket['numero_ticket'] . " aprobado correctamente. Stock actualizado.";
 
     } catch (Exception $e) {
         $pdo->rollBack();
         $_SESSION['error'] = "❌ Error al aprobar ticket: " . $e->getMessage();
     }
 
+    header("Location: tickets.php");
+    exit();
+} else {
+    // Si no es POST, redirigir
     header("Location: tickets.php");
     exit();
 }
