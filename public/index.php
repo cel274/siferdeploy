@@ -82,23 +82,13 @@ if (!isset($_SESSION['nombre'])) {
 
             <div class="bottom-content">
                 <li class="">
-                    <a href="login.php">
+                    <a href="logout.php">
                         <i class='bx bx-user-hexagon icon' ></i>
                         <span class="text nav-text">    <?php echo isset($_SESSION['nombre']) ? 'Cerrar sesión' : 'Iniciar sesión'; ?></span>
                     </a>
                 </li>
 
-                <li class="mode">
-                    <div class="sun-moon">
-                        <i class='bx bx-moon icon moon'></i>
-                        <i class='bx bx-sun icon sun'></i>
-                    </div>
-                    <span class="mode-text text">Tema</span>
 
-                    <div class="toggle-switch">
-                        <span class="switch"></span>
-                    </div>
-                </li>
                 
             </div>
         </div>

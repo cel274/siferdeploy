@@ -191,20 +191,11 @@ $items = $stmt_items->fetchAll();
             <div class="bottom-content">
                 <li class="">
                     <a href="logout.php">
-                        <i class='bx bx-log-out icon' ></i>
+                        <i class='bx bx-user-hexagon icon' ></i>
                         <span class="text nav-text">Cerrar Sesión</span>
                     </a>
                 </li>
-                <li class="mode">
-                    <div class="sun-moon">
-                        <i class='bx bx-moon icon moon'></i>
-                        <i class='bx bx-sun icon sun'></i>
-                    </div>
-                    <span class="mode-text text">Tema</span>
-                    <div class="toggle-switch">
-                        <span class="switch"></span>
-                    </div>
-                </li>
+
             </div>
         </div>
     </nav>
