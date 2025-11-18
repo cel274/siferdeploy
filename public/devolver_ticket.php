@@ -14,7 +14,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['devolver_ticket'])) {
     try {
         $pdo->beginTransaction();
 
-        // Verificar que el ticket esté aprobado
         $sqlCheck = "SELECT * FROM tickets WHERE idTicket = ? AND estado = 'aprobado'";
         $stmtCheck = $pdo->prepare($sqlCheck);
         $stmtCheck->execute([$ticket_id]);
@@ -24,7 +23,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['devolver_ticket'])) {
             throw new Exception("Ticket no encontrado o no está aprobado");
         }
 
-        // Devolver herramientas al inventario
         $sqlReturnStock = "UPDATE productos p 
                           JOIN ticket_items ti ON p.idProducto = ti.producto_id 
                           SET p.cantidad = p.cantidad + ti.cantidad_aprobada 
@@ -32,7 +30,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['devolver_ticket'])) {
         $stmtReturnStock = $pdo->prepare($sqlReturnStock);
         $stmtReturnStock->execute([$ticket_id]);
 
-        // Marcar ticket como devuelto
         $sqlDevolver = "UPDATE tickets SET 
                        fecha_devolucion = NOW(), 
                        devuelto_por = ?, 

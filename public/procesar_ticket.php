@@ -1,5 +1,5 @@
 <?php
-session_start(); // Agregar esto al inicio
+session_start();
 require 'sifer_db.php';
 
 if (!isset($_SESSION['nombre']) || !isset($_SESSION['id'])) {
@@ -42,21 +42,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $sqlItem = "INSERT INTO ticket_items (ticket_id, producto_id, cantidad_solicitada, cantidad_aprobada) VALUES (?, ?, ?, ?)";
         $stmtItem = $pdo->prepare($sqlItem);
 
-        // ✅ MODIFICACIÓN IMPORTANTE: Siempre cantidad_aprobada = 0 al crear
         foreach ($productos as $item) {
             if (!empty($item['id']) && !empty($item['cantidad']) && $item['cantidad'] > 0) {
-                $cantidad_aprobada = 0; // SIEMPRE 0 al crear el ticket
+                $cantidad_aprobada = 0;
                 
                 $stmtItem->execute([$ticketId, $item['id'], $item['cantidad'], $cantidad_aprobada]);
                 
-                // ❌ ELIMINADO: No descontar stock aquí automáticamente
-                // El stock se descontará solo cuando el admin apruebe el ticket
             }
         }
 
         $pdo->commit();
-        
-        // ✅ MODIFICACIÓN: Mensajes actualizados
+
         if ($es_admin) {
             $_SESSION['ticket_success'] = "✅ Solicitud creada exitosamente: " . $numeroTicket . " (Lista para aprobación)";
         } else {

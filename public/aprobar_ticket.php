@@ -14,7 +14,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
     try {
         $pdo->beginTransaction();
 
-        // Verificar que el ticket existe y está pendiente
         $sqlCheck = "SELECT t.*, u.nombre as solicitante 
                     FROM tickets t 
                     JOIN usuarios u ON t.usuario_solicitante = u.id 
@@ -27,7 +26,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
             throw new Exception("Ticket no encontrado o ya fue procesado");
         }
 
-        // Obtener los items del ticket
         $sqlItems = "SELECT ti.*, p.nombreProducto, p.cantidad as stock_actual 
                     FROM ticket_items ti 
                     JOIN productos p ON ti.producto_id = p.idProducto 
@@ -40,7 +38,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
             throw new Exception("El ticket no tiene items");
         }
 
-        // Verificar stock disponible
         $stockErrors = [];
         foreach ($items as $item) {
             if ($item['cantidad_solicitada'] > $item['stock_actual']) {
@@ -52,7 +49,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
             throw new Exception("Stock insuficiente: " . implode(", ", $stockErrors));
         }
 
-        // Actualizar ticket a aprobado
         $sqlAprobar = "UPDATE tickets SET 
                       estado = 'aprobado', 
                       fecha_aprobacion = NOW(), 
@@ -61,12 +57,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
         $stmtAprobar = $pdo->prepare($sqlAprobar);
         $stmtAprobar->execute([$usuario_id, $ticket_id]);
 
-        // Actualizar items con cantidad aprobada
         $sqlUpdateItem = "UPDATE ticket_items SET cantidad_aprobada = cantidad_solicitada WHERE ticket_id = ?";
         $stmtUpdateItem = $pdo->prepare($sqlUpdateItem);
         $stmtUpdateItem->execute([$ticket_id]);
 
-        // Descontar del inventario
         $sqlUpdateStock = "UPDATE productos p 
                           JOIN ticket_items ti ON p.idProducto = ti.producto_id 
                           SET p.cantidad = p.cantidad - ti.cantidad_solicitada 

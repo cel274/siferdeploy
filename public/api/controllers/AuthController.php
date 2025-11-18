@@ -5,7 +5,6 @@ class AuthController {
     public function __construct() {
         global $pdo;
         
-        // Verificar que $pdo esté disponible
         if (!isset($pdo)) {
             error_log("ERROR: $pdo no está disponible en AuthController");
             header('Content-Type: application/json');
@@ -50,7 +49,6 @@ class AuthController {
                 return;
             }
 
-            // Buscar usuario en la BD
             $stmt = $this->db->prepare("SELECT id, nombre, contraseña, rol FROM usuarios WHERE nombre = ?");
             $stmt->execute([$nombre]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -59,7 +57,6 @@ class AuthController {
                 error_log("Usuario encontrado: " . $user['nombre']);
                 
                 if (password_verify($contraseña, $user['contraseña'])) {
-                    // Login exitoso
                     $response = [
                         'success' => true,
                         'message' => 'Login exitoso',
@@ -116,7 +113,6 @@ class AuthController {
             $contraseña = trim($data['contraseña']);
             $rol = 2;
 
-            // Validaciones
             if (strlen($nombre) < 3) {
                 http_response_code(400);
                 echo json_encode(['success' => false, 'error' => 'El nombre debe tener al menos 3 caracteres']);
@@ -129,7 +125,6 @@ class AuthController {
                 return;
             }
 
-            // Verificar si usuario existe
             $checkStmt = $this->db->prepare("SELECT id FROM usuarios WHERE nombre = ?");
             $checkStmt->execute([$nombre]);
             
@@ -139,7 +134,6 @@ class AuthController {
                 return;
             }
 
-            // Crear usuario
             $hashedPassword = password_hash($contraseña, PASSWORD_DEFAULT);
             $stmt = $this->db->prepare("INSERT INTO usuarios (nombre, contraseña, rol) VALUES (?, ?, ?)");
             $result = $stmt->execute([$nombre, $hashedPassword, $rol]);

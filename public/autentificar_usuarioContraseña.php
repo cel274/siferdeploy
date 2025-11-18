@@ -3,7 +3,6 @@ session_start();
 require 'sifer_db.php';
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Cambiar para aceptar ambos nombres (usuario o nombre)
     $username = trim($_POST['nombre'] ?? $_POST['usuario'] ?? '');
     $password = trim($_POST['contraseña']);
 
@@ -28,8 +27,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 $_SESSION['rol'] = $usuario['rol'];
                 
                 error_log("Login EXITOSO - Usuario: " . $usuario['nombre']);
-                
-                // Para API - devolver JSON
+
                 if (isset($_SERVER['HTTP_ACCEPT']) && strpos($_SERVER['HTTP_ACCEPT'], 'application/json') !== false) {
                     header('Content-Type: application/json');
                     echo json_encode([
@@ -41,11 +39,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                             'rol' => $usuario['rol'],
                             'rol_nombre' => $usuario['rol'] == 1 ? 'Administrador' : 'Usuario'
                         ],
-                        'token' => bin2hex(random_bytes(16)) // o tu lógica de tokens
+                        'token' => bin2hex(random_bytes(16))
                     ]);
                     exit();
                 } else {
-                    // Para web
                     header("Location: index.php");
                     exit();
                 }

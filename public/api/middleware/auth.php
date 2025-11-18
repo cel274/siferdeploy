@@ -23,8 +23,6 @@ function authenticate() {
         exit;
     }
     
-    // ✅ VERIFICACIÓN DE ROL ELIMINADA - Ahora cualquier usuario autenticado puede pasar
-    // Los permisos específicos se manejarán en index.php para cada endpoint
     
     return $payload;
 }

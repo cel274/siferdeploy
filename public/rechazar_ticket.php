@@ -12,7 +12,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['rechazar_ticket'])) {
     $usuario_id = $_SESSION['id'];
 
     try {
-        // Primero obtener el número de ticket para el mensaje
         $sqlTicket = "SELECT numero_ticket FROM tickets WHERE idTicket = ?";
         $stmtTicket = $pdo->prepare($sqlTicket);
         $stmtTicket->execute([$ticket_id]);

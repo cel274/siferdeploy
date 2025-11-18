@@ -254,12 +254,10 @@ $es_admin = ($_SESSION['rol'] == 1);
                 </form>
             </div>
 
-            <!-- Lista de tickets existentes -->
             <div class="card">
                 <h2><?php echo $es_admin ? '📄 Todos los Tickets' : '📄 Mis Tickets'; ?></h2>
                 <?php
                 if ($es_admin) {
-                    // Admin ve todos los tickets
                     $sql = "SELECT t.*, u.nombre as usuario_nombre 
                             FROM tickets t 
                             JOIN usuarios u ON t.usuario_solicitante = u.id 
@@ -267,7 +265,6 @@ $es_admin = ($_SESSION['rol'] == 1);
                     $stmt = $pdo->prepare($sql);
                     $stmt->execute();
                 } else {
-                    // Usuario normal ve solo sus tickets
                     $sql = "SELECT t.*, u.nombre as usuario_nombre 
                             FROM tickets t 
                             JOIN usuarios u ON t.usuario_solicitante = u.id 
@@ -344,9 +341,7 @@ $es_admin = ($_SESSION['rol'] == 1);
     </section>
 
    <script>
-    // Solucionar error JavaScript
     document.addEventListener('DOMContentLoaded', function() {
-        // Tu código existente para agregar items...
         let itemCount = 1;
 
         const agregarItemBtn = document.getElementById('agregar-item');
@@ -387,7 +382,6 @@ $es_admin = ($_SESSION['rol'] == 1);
             });
         }
 
-        // Manejar botones de remover existentes
         document.querySelectorAll('.remover-item').forEach(button => {
             button.addEventListener('click', function() {
                 if (document.querySelectorAll('.item-row').length > 1) {

@@ -47,7 +47,7 @@ class TicketsController {
         $tickets = $this->ticketModel->getByUser($user_id);
         echo json_encode([
             'success' => true,
-            'user' => $tickets  // ← CAMBIAR 'data' por 'user'
+            'user' => $tickets
         ]);
     } catch (Exception $e) {
         http_response_code(500);
@@ -106,7 +106,7 @@ class TicketsController {
         $tickets = $this->ticketModel->getAll($filters);
         echo json_encode([
             'success' => true,
-            'user' => $tickets  // ← CAMBIAR 'data' por 'user'
+            'user' => $tickets
         ]);
     } catch (Exception $e) {
         http_response_code(500);
