@@ -184,6 +184,12 @@ $items = $stmt_items->fetchAll();
                             <span class="text nav-text">Administración</span>
                         </a>
                     </li>
+                                        <li class="nav-link">
+                        <a href="./admin_tickets.php">
+                            <i class='bx bx-hourglass icon'></i>
+                            <span class="text nav-text">Solicitudes</span>
+                        </a>
+                    </li>
                     <?php endif; ?>
                 </ul>
             </div>
