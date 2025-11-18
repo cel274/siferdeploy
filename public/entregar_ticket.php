@@ -35,13 +35,13 @@ try {
 
     $pdo->commit();
 
-    $_SESSION['ticket_success'] = "✅ Ticket marcado como entregado exitosamente";
+    $_SESSION['ticket_success'] = "Ticket marcado como entregado exitosamente";
     header("Location: detalle_ticket.php?id=" . $ticket_id);
     exit();
 
 } catch (Exception $e) {
     $pdo->rollBack();
-    $_SESSION['ticket_error'] = "❌ Error al marcar como entregado: " . $e->getMessage();
+    $_SESSION['ticket_error'] = "Error al marcar como entregado: " . $e->getMessage();
     header("Location: detalle_ticket.php?id=" . $ticket_id);
     exit();
 }
