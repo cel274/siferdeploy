@@ -36,7 +36,7 @@ try {
             break;
             
         default:
-            $user = ['id' => 24, 'rol' => 2, 'nombre' => 'MILANESA'];
+            $user = ['id' => 1, 'rol' => 1, 'nombre' => 'admin'];
             
             switch (true) {
                 case $api_path === '/productos' && $method === 'POST':
