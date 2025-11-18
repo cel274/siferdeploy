@@ -70,11 +70,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
 
         $pdo->commit();
         
-        $_SESSION['success'] = "✅ Ticket #" . $ticket['numero_ticket'] . " aprobado correctamente. Stock actualizado.";
+        $_SESSION['success'] = "Ticket #" . $ticket['numero_ticket'] . " aprobado correctamente. Stock actualizado.";
 
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "❌ Error al aprobar ticket: " . $e->getMessage();
+        $_SESSION['error'] = "Error al aprobar ticket: " . $e->getMessage();
     }
 
     header("Location: tickets.php");
