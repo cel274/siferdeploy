@@ -99,13 +99,13 @@ if (!isset($_SESSION['nombre'])) {
         <section class="banner">
             <h1 class="texto" style="text-shadow: #00000071 1px 0 10px;">SIFER - Sistema de Ferreteria y Control de Stock</h1>
         </section>
-
+<center>
         <section class="acerca_de">
             <h2>Acerca del proyecto:</h2>
             <h3>SIFER es un proyecto creado por alumnos de 7°4° del 2025 para facilitar el trabajo en el pañol de la institución de la EEST N°5 de Lanús "John F. Kennedy".</h3>
         </section>
     </section>
-
+                    </center>
     <script src="./scripts/script.js"></script>
 
 </body>
