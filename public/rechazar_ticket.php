@@ -26,13 +26,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['rechazar_ticket'])) {
         $stmtRechazar->execute([$usuario_id, $ticket_id]);
 
         if ($stmtRechazar->rowCount() > 0) {
-            $_SESSION['success'] = "✅ Ticket #" . $ticket['numero_ticket'] . " rechazado correctamente";
+            $_SESSION['success'] = "Ticket #" . $ticket['numero_ticket'] . " rechazado correctamente";
         } else {
-            $_SESSION['error'] = "❌ No se pudo rechazar el ticket";
+            $_SESSION['error'] = "No se pudo rechazar el ticket";
         }
 
     } catch (Exception $e) {
-        $_SESSION['error'] = "❌ Error al rechazar ticket: " . $e->getMessage();
+        $_SESSION['error'] = "Error al rechazar ticket: " . $e->getMessage();
     }
 
     header("Location: tickets.php");
