@@ -222,7 +222,7 @@ $es_admin = ($_SESSION['rol'] == 1);
                         <textarea id="observaciones" name="observaciones" rows="2" placeholder="Ej: Para proyecto específico, urgencia, etc..."></textarea>
                     </div>
                     
-                    <h3>🛠️ Materiales Solicitados</h3>
+                    <h3>Materiales Solicitados</h3>
                     <div id="items-container" class="items-container-limited">
                         <div class="item-row">
                             <div class="form-group">
@@ -243,19 +243,19 @@ $es_admin = ($_SESSION['rol'] == 1);
                                 <label>Cantidad:</label>
                                 <input type="number" class="cantidad" name="productos[0][cantidad]" min="1" required style="padding: 4px 8px;">
                             </div>
-                            <button type="button" class="btn btn-warning remover-item">🗑️ Remover</button>
+                            <button type="button" class="btn btn-warning remover-item">Remover</button>
                         </div>
                     </div>
                     
                     <div style="margin-top: 15px;">
                         <button type="button" class="btn btn-primary" id="agregar-item">➕ Agregar Material</button>
-                        <button type="submit" class="btn btn-success">✅ Crear Solicitud</button>
+                        <button type="submit" class="btn btn-success">Crear Solicitud</button>
                     </div>
                 </form>
             </div>
 
             <div class="card">
-                <h2><?php echo $es_admin ? '📄 Todos los Tickets' : '📄 Mis Tickets'; ?></h2>
+                <h2><?php echo $es_admin ? 'Todos los Tickets' : 'Mis Tickets'; ?></h2>
                 <?php
                 if ($es_admin) {
                     $sql = "SELECT t.*, u.nombre as usuario_nombre 
@@ -297,14 +297,14 @@ $es_admin = ($_SESSION['rol'] == 1);
                             <td class="estado-<?php echo $ticket['estado']; ?>">
                                 <?php echo ucfirst($ticket['estado']); ?>
                                 <?php if (isset($ticket['estado_devolucion']) && $ticket['estado_devolucion'] == 'completada'): ?>
-                                    <br><span class="badge bg-success">✅ Devuelto</span>
+                                    <br><span class="badge bg-success">Devuelto</span>
                                 <?php endif; ?>
                             </td>
                             <td><?php echo date('d/m/Y H:i', strtotime($ticket['fecha_solicitud'])); ?></td>
                             <td>
     <div class="action-buttons">
         <button class="btn btn-primary btn-sm" onclick="verDetalle(<?php echo $ticket['idTicket']; ?>)">
-            👁️ Ver
+            Ver
         </button>
         
         <!-- Botones condicionales para admin -->
@@ -312,11 +312,11 @@ $es_admin = ($_SESSION['rol'] == 1);
             <?php if ($ticket['estado'] == 'pendiente'): ?>
                 <form method="POST" action="aprobar_ticket.php" style="display: inline;">
                     <input type="hidden" name="ticket_id" value="<?= $ticket['idTicket'] ?>">
-                    <button type="submit" name="aprobar_ticket" class="btn btn-success btn-sm">✅ Aprobar</button>
+                    <button type="submit" name="aprobar_ticket" class="btn btn-success btn-sm">Aprobar</button>
                 </form>
                 <form method="POST" action="rechazar_ticket.php" style="display: inline;">
                     <input type="hidden" name="ticket_id" value="<?= $ticket['idTicket'] ?>">
-                    <button type="submit" name="rechazar_ticket" class="btn btn-danger btn-sm">❌ Rechazar</button>
+                    <button type="submit" name="rechazar_ticket" class="btn btn-danger btn-sm">Rechazar</button>
                 </form>
             <?php elseif ($ticket['estado'] == 'aprobado' && (!isset($ticket['estado_devolucion']) || $ticket['estado_devolucion'] == 'pendiente')): ?>
                 <form method="POST" action="devolver_ticket.php" style="display: inline;">
@@ -324,7 +324,7 @@ $es_admin = ($_SESSION['rol'] == 1);
                     <button type="submit" name="devolver_ticket" class="btn btn-warning btn-sm">🔄 Devolver</button>
                 </form>
             <?php elseif (isset($ticket['estado_devolucion']) && $ticket['estado_devolucion'] == 'completada'): ?>
-                <span class="badge bg-success">✅ Devuelto</span>
+                <span class="badge bg-success">Devuelto</span>
             <?php endif; ?>
         <?php endif; ?>
     </div>
@@ -369,7 +369,7 @@ $es_admin = ($_SESSION['rol'] == 1);
                         <label>Cantidad Solicitada:</label>
                         <input type="number" class="cantidad" name="productos[${itemCount}][cantidad]" min="1" required>
                     </div>
-                    <button type="button" class="btn btn-warning remover-item">🗑️ Remover</button>
+                    <button type="button" class="btn btn-warning remover-item">Remover</button>
                 `;
                 container.appendChild(newItem);
                 itemCount++;

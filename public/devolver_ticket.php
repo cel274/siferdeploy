@@ -39,11 +39,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['devolver_ticket'])) {
         $stmtDevolver->execute([$usuario_id, $ticket_id]);
 
         $pdo->commit();
-        $_SESSION['success'] = "✅ Devolución completada y stock repuesto correctamente";
+        $_SESSION['success'] = "Devolución completada y stock repuesto correctamente";
 
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['error'] = "❌ Error en devolución: " . $e->getMessage();
+        $_SESSION['error'] = "Error en devolución: " . $e->getMessage();
     }
 
     header("Location: tickets.php");

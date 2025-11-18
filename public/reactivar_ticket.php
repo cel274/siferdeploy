@@ -20,12 +20,12 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute([$ticket_id]);
 
-    $_SESSION['ticket_success'] = "✅ Ticket reactivado exitosamente";
+    $_SESSION['ticket_success'] = "Ticket reactivado exitosamente";
     header("Location: detalle_ticket.php?id=" . $ticket_id);
     exit();
 
 } catch (Exception $e) {
-    $_SESSION['ticket_error'] = "❌ Error al reactivar el ticket: " . $e->getMessage();
+    $_SESSION['ticket_error'] = "Error al reactivar el ticket: " . $e->getMessage();
     header("Location: detalle_ticket.php?id=" . $ticket_id);
     exit();
 }

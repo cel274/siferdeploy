@@ -54,9 +54,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $pdo->commit();
 
         if ($es_admin) {
-            $_SESSION['ticket_success'] = "✅ Solicitud creada exitosamente: " . $numeroTicket . " (Lista para aprobación)";
+            $_SESSION['ticket_success'] = "Solicitud creada exitosamente: " . $numeroTicket . " (Lista para aprobación)";
         } else {
-            $_SESSION['ticket_success'] = "✅ Solicitud creada exitosamente: " . $numeroTicket . " (Esperando aprobación)";
+            $_SESSION['ticket_success'] = "Solicitud creada exitosamente: " . $numeroTicket . " (Esperando aprobación)";
         }
         
         header("Location: tickets.php");
@@ -64,7 +64,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     } catch (Exception $e) {
         $pdo->rollBack();
-        $_SESSION['ticket_error'] = "❌ Error al crear la solicitud: " . $e->getMessage();
+        $_SESSION['ticket_error'] = "Error al crear la solicitud: " . $e->getMessage();
         header("Location: tickets.php");
         exit();
     }
