@@ -7,8 +7,8 @@ if (!isset($_SESSION['nombre'])) {
     exit();
 }
 
-
 $usuario_id = $_SESSION['id'];
+$es_admin = ($_SESSION['rol'] == 1);
 ?>
 
 <!DOCTYPE html>
@@ -32,7 +32,7 @@ $usuario_id = $_SESSION['id'];
         padding: 20px;
         margin-bottom: 20px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        height: fit-content; /* ¡ESTA ES LA CLAVE! */
+        height: fit-content;
     }
     .form-group {
         margin-bottom: 15px;
@@ -67,6 +67,14 @@ $usuario_id = $_SESSION['id'];
         background: #ffc107;
         color: black;
     }
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+    .btn-sm {
+        padding: 5px 10px;
+        font-size: 0.875rem;
+    }
     .table {
         width: 100%;
         border-collapse: collapse;
@@ -90,6 +98,17 @@ $usuario_id = $_SESSION['id'];
         margin-bottom: 10px;
         border-radius: 4px;
         background-color: #f8f9fa;
+    }
+    .badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.875rem;
+    }
+    .bg-success { background-color: #28a745; color: white; }
+    .action-buttons {
+        display: flex;
+        gap: 5px;
+        flex-wrap: wrap;
     }
 </style>
 </head>
@@ -136,7 +155,7 @@ $usuario_id = $_SESSION['id'];
                             <span class="text nav-text">Mis Tickets</span>
                         </a>
                     </li>
-                    <?php if (isset($_SESSION['rol']) && $_SESSION['rol'] == 1): ?>
+                    <?php if ($es_admin): ?>
                     <li class="nav-link">
                         <a href="./admin.php">
                             <i class='bx bx-cog icon'></i>
@@ -160,14 +179,15 @@ $usuario_id = $_SESSION['id'];
                         <span class="text nav-text">Cerrar Sesión</span>
                     </a>
                 </li>
-
             </div>
         </div>
     </nav>
 
     <section class="home">
         <section class="banner">
-            <h1 class="texto" style="text-shadow: #00000071 1px 0 10px;">Sistema de Tickets</h1>
+            <h1 class="texto" style="text-shadow: #00000071 1px 0 10px;">
+                <?php echo $es_admin ? 'Gestión de Tickets' : 'Mis Tickets'; ?>
+            </h1>
         </section>
 
         <div class="tickets-container">
@@ -184,67 +204,78 @@ $usuario_id = $_SESSION['id'];
             <?php endif; ?>
 
             <!-- Formulario para nuevo ticket -->
-           <div class="card">
-    <h2>📋 Nueva Solicitud de Taller</h2>
-    <form id="formTicket" method="POST" action="procesar_ticket.php" class="compact-form">
-        <div class="form-group">
-            <label for="tipo_solicitud">Tipo de Material:</label>
-            <select id="tipo_solicitud" name="tipo_solicitud" required>
-                <option value="">Seleccionar...</option>
-                <option value="Herramientas">🛠️ Herramientas</option>
-                <option value="Materiales">📦 Materiales</option>
-                <option value="Medición">📏 Medición</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="observaciones">Observaciones (opcional):</label>
-            <textarea id="observaciones" name="observaciones" rows="2" placeholder="Ej: Para proyecto específico, urgencia, etc..."></textarea>
-        </div>
-        
-        <h3>🛠️ Materiales Solicitados</h3>
-        <div id="items-container" class="items-container-limited">
-            <div class="item-row">
-                <div class="form-group">
-                    <label>Producto:</label>
-                    <select class="producto-select" name="productos[0][id]" required style="font-size: 0.85em;">
-                        <option value="">Seleccionar producto...</option>
-                        <?php
-                        $productos = $pdo->query("SELECT idProducto, nombreProducto, cantidad FROM productos WHERE cantidad > 0 ORDER BY nombreProducto");
-                        while ($producto = $productos->fetch()):
-                        ?>
-                        <option value="<?php echo $producto['idProducto']; ?>">
-                            <?php echo htmlspecialchars($producto['nombreProducto']); ?> (Stock: <?php echo $producto['cantidad']; ?>)
-                        </option>
-                        <?php endwhile; ?>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Cantidad:</label>
-                    <input type="number" class="cantidad" name="productos[0][cantidad]" min="1" required style="padding: 4px 8px;">
-                </div>
-                <button type="button" class="btn btn-warning remover-item">🗑️ Remover</button>
+            <div class="card">
+                <h2>📋 Nueva Solicitud de Taller</h2>
+                <form id="formTicket" method="POST" action="procesar_ticket.php" class="compact-form">
+                    <div class="form-group">
+                        <label for="tipo_solicitud">Tipo de Material:</label>
+                        <select id="tipo_solicitud" name="tipo_solicitud" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="Herramientas">🛠️ Herramientas</option>
+                            <option value="Materiales">📦 Materiales</option>
+                            <option value="Medición">📏 Medición</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="observaciones">Observaciones (opcional):</label>
+                        <textarea id="observaciones" name="observaciones" rows="2" placeholder="Ej: Para proyecto específico, urgencia, etc..."></textarea>
+                    </div>
+                    
+                    <h3>🛠️ Materiales Solicitados</h3>
+                    <div id="items-container" class="items-container-limited">
+                        <div class="item-row">
+                            <div class="form-group">
+                                <label>Producto:</label>
+                                <select class="producto-select" name="productos[0][id]" required style="font-size: 0.85em;">
+                                    <option value="">Seleccionar producto...</option>
+                                    <?php
+                                    $productos = $pdo->query("SELECT idProducto, nombreProducto, cantidad FROM productos WHERE cantidad > 0 ORDER BY nombreProducto");
+                                    while ($producto = $productos->fetch()):
+                                    ?>
+                                    <option value="<?php echo $producto['idProducto']; ?>">
+                                        <?php echo htmlspecialchars($producto['nombreProducto']); ?> (Stock: <?php echo $producto['cantidad']; ?>)
+                                    </option>
+                                    <?php endwhile; ?>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Cantidad:</label>
+                                <input type="number" class="cantidad" name="productos[0][cantidad]" min="1" required style="padding: 4px 8px;">
+                            </div>
+                            <button type="button" class="btn btn-warning remover-item">🗑️ Remover</button>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <button type="button" class="btn btn-primary" id="agregar-item">➕ Agregar Material</button>
+                        <button type="submit" class="btn btn-success">✅ Crear Solicitud</button>
+                    </div>
+                </form>
             </div>
-        </div>
-        
-        <div style="margin-top: 15px;">
-            <button type="button" class="btn btn-primary" id="agregar-item">➕ Agregar Material</button>
-            <button type="submit" class="btn btn-success">✅ Crear Solicitud</button>
-        </div>
-    </form>
-</div>
 
             <!-- Lista de tickets existentes -->
             <div class="card">
-                <h2>📄 Mis Tickets</h2>
+                <h2><?php echo $es_admin ? '📄 Todos los Tickets' : '📄 Mis Tickets'; ?></h2>
                 <?php
-                $sql = "SELECT t.*, u.nombre as usuario_nombre 
-                        FROM tickets t 
-                        JOIN usuarios u ON t.usuario_solicitante = u.id 
-                        WHERE t.usuario_solicitante = ? 
-                        ORDER BY t.fecha_solicitud DESC";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute([$usuario_id]);
+                if ($es_admin) {
+                    // Admin ve todos los tickets
+                    $sql = "SELECT t.*, u.nombre as usuario_nombre 
+                            FROM tickets t 
+                            JOIN usuarios u ON t.usuario_solicitante = u.id 
+                            ORDER BY t.fecha_solicitud DESC";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute();
+                } else {
+                    // Usuario normal ve solo sus tickets
+                    $sql = "SELECT t.*, u.nombre as usuario_nombre 
+                            FROM tickets t 
+                            JOIN usuarios u ON t.usuario_solicitante = u.id 
+                            WHERE t.usuario_solicitante = ? 
+                            ORDER BY t.fecha_solicitud DESC";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->execute([$usuario_id]);
+                }
                 $tickets = $stmt->fetchAll();
 
                 if (count($tickets) > 0):
@@ -253,7 +284,8 @@ $usuario_id = $_SESSION['id'];
                     <thead>
                         <tr>
                             <th>N° Ticket</th>
-                            <th>Tipo de solicitud</th>
+                            <th>Solicitante</th>
+                            <th>Tipo</th>
                             <th>Estado</th>
                             <th>Fecha</th>
                             <th>Acciones</th>
@@ -263,32 +295,63 @@ $usuario_id = $_SESSION['id'];
                         <?php foreach ($tickets as $ticket): ?>
                         <tr>
                             <td><strong><?php echo htmlspecialchars($ticket['numero_ticket']); ?></strong></td>
+                            <td><?php echo htmlspecialchars($ticket['usuario_nombre']); ?></td>
                             <td><?php echo htmlspecialchars($ticket['tipo_solicitud']); ?></td>
                             <td class="estado-<?php echo $ticket['estado']; ?>">
                                 <?php echo ucfirst($ticket['estado']); ?>
+                                <?php if (isset($ticket['estado_devolucion']) && $ticket['estado_devolucion'] == 'completada'): ?>
+                                    <br><span class="badge bg-success">✅ Devuelto</span>
+                                <?php endif; ?>
                             </td>
                             <td><?php echo date('d/m/Y H:i', strtotime($ticket['fecha_solicitud'])); ?></td>
                             <td>
-                                <button class="btn btn-primary" onclick="verDetalle(<?php echo $ticket['idTicket']; ?>)">
-                                    👁️ Ver Detalle
-                                </button>
-                            </td>
+    <div class="action-buttons">
+        <button class="btn btn-primary btn-sm" onclick="verDetalle(<?php echo $ticket['idTicket']; ?>)">
+            👁️ Ver
+        </button>
+        
+        <!-- Botones condicionales para admin -->
+        <?php if ($es_admin): ?>
+            <?php if ($ticket['estado'] == 'pendiente'): ?>
+                <form method="POST" action="aprobar_ticket.php" style="display: inline;">
+                    <input type="hidden" name="ticket_id" value="<?= $ticket['idTicket'] ?>">
+                    <button type="submit" name="aprobar_ticket" class="btn btn-success btn-sm">✅ Aprobar</button>
+                </form>
+                <form method="POST" action="rechazar_ticket.php" style="display: inline;">
+                    <input type="hidden" name="ticket_id" value="<?= $ticket['idTicket'] ?>">
+                    <button type="submit" name="rechazar_ticket" class="btn btn-danger btn-sm">❌ Rechazar</button>
+                </form>
+            <?php elseif ($ticket['estado'] == 'aprobado' && (!isset($ticket['estado_devolucion']) || $ticket['estado_devolucion'] == 'pendiente')): ?>
+                <form method="POST" action="devolver_ticket.php" style="display: inline;">
+                    <input type="hidden" name="ticket_id" value="<?= $ticket['idTicket'] ?>">
+                    <button type="submit" name="devolver_ticket" class="btn btn-warning btn-sm">🔄 Devolver</button>
+                </form>
+            <?php elseif (isset($ticket['estado_devolucion']) && $ticket['estado_devolucion'] == 'completada'): ?>
+                <span class="badge bg-success">✅ Devuelto</span>
+            <?php endif; ?>
+        <?php endif; ?>
+    </div>
+</td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
                 </table>
                 <?php else: ?>
-                    <p>No tenés tickets creados todavía.</p>
+                    <p>No hay tickets creados todavía.</p>
                 <?php endif; ?>
             </div>
         </div>
     </section>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            let itemCount = 1;
+   <script>
+    // Solucionar error JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tu código existente para agregar items...
+        let itemCount = 1;
 
-            document.getElementById('agregar-item').addEventListener('click', function() {
+        const agregarItemBtn = document.getElementById('agregar-item');
+        if (agregarItemBtn) {
+            agregarItemBtn.addEventListener('click', function() {
                 const container = document.getElementById('items-container');
                 const newItem = document.createElement('div');
                 newItem.className = 'item-row';
@@ -316,28 +379,28 @@ $usuario_id = $_SESSION['id'];
                 container.appendChild(newItem);
                 itemCount++;
 
-
                 newItem.querySelector('.remover-item').addEventListener('click', function() {
                     if (document.querySelectorAll('.item-row').length > 1) {
                         newItem.remove();
                     }
                 });
             });
+        }
 
-
-            document.querySelectorAll('.remover-item').forEach(button => {
-                button.addEventListener('click', function() {
-                    if (document.querySelectorAll('.item-row').length > 1) {
-                        this.closest('.item-row').remove();
-                    }
-                });
+        // Manejar botones de remover existentes
+        document.querySelectorAll('.remover-item').forEach(button => {
+            button.addEventListener('click', function() {
+                if (document.querySelectorAll('.item-row').length > 1) {
+                    this.closest('.item-row').remove();
+                }
             });
         });
+    });
 
-        function verDetalle(ticketId) {
-            window.location.href = 'detalle_ticket.php?id=' + ticketId;
-        }
-    </script>
+    function verDetalle(ticketId) {
+        window.location.href = 'detalle_ticket.php?id=' + ticketId;
+    }
+</script>
     <script src="./scripts/script.js"></script>
 </body>
 </html>

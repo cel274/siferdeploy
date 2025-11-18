@@ -2,60 +2,90 @@
 session_start();
 require 'sifer_db.php';
 
-if (!isset($_SESSION['nombre']) || $_SESSION['rol'] != 1) {
+if (!isset($_SESSION['id']) || $_SESSION['rol'] != 1) {
     header('Location: login.php');
     exit();
 }
 
-if (!isset($_GET['id'])) {
-    header('Location: tickets.php');
-    exit();
-}
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['aprobar_ticket'])) {
+    $ticket_id = $_POST['ticket_id'];
+    $usuario_id = $_SESSION['id'];
 
-$ticket_id = intval($_GET['id']);
-$admin_id = $_SESSION['id'];
+    try {
+        $pdo->beginTransaction();
 
-try {
-    $pdo->beginTransaction();
+        // Verificar que el ticket existe y está pendiente
+        $sqlCheck = "SELECT t.*, u.nombre as solicitante 
+                    FROM tickets t 
+                    JOIN usuarios u ON t.usuario_solicitante = u.id 
+                    WHERE t.idTicket = ? AND t.estado = 'pendiente'";
+        $stmtCheck = $pdo->prepare($sqlCheck);
+        $stmtCheck->execute([$ticket_id]);
+        $ticket = $stmtCheck->fetch();
 
-    $sql_items = "SELECT producto_id, cantidad_solicitada FROM ticket_items WHERE ticket_id = ?";
-    $stmt_items = $pdo->prepare($sql_items);
-    $stmt_items->execute([$ticket_id]);
-    $items = $stmt_items->fetchAll();
-
-    foreach ($items as $item) {
-        $sql_stock = "SELECT cantidad FROM productos WHERE idProducto = ?";
-        $stmt_stock = $pdo->prepare($sql_stock);
-        $stmt_stock->execute([$item['producto_id']]);
-        $stock_actual = $stmt_stock->fetchColumn();
-
-        if ($stock_actual >= $item['cantidad_solicitada']) {
-            $sql_update_stock = "UPDATE productos SET cantidad = cantidad - ? WHERE idProducto = ?";
-            $stmt_update = $pdo->prepare($sql_update_stock);
-            $stmt_update->execute([$item['cantidad_solicitada'], $item['producto_id']]);
-
-            $sql_update_aprobada = "UPDATE ticket_items SET cantidad_aprobada = ? WHERE ticket_id = ? AND producto_id = ?";
-            $stmt_aprobada = $pdo->prepare($sql_update_aprobada);
-            $stmt_aprobada->execute([$item['cantidad_solicitada'], $ticket_id, $item['producto_id']]);
-        } else {
-            throw new Exception("Stock insuficiente para el producto ID: " . $item['producto_id']);
+        if (!$ticket) {
+            throw new Exception("Ticket no encontrado o ya fue procesado");
         }
+
+        // Obtener los items del ticket
+        $sqlItems = "SELECT ti.*, p.nombreProducto, p.cantidad as stock_actual 
+                    FROM ticket_items ti 
+                    JOIN productos p ON ti.producto_id = p.idProducto 
+                    WHERE ti.ticket_id = ?";
+        $stmtItems = $pdo->prepare($sqlItems);
+        $stmtItems->execute([$ticket_id]);
+        $items = $stmtItems->fetchAll();
+
+        if (empty($items)) {
+            throw new Exception("El ticket no tiene items");
+        }
+
+        // Verificar stock disponible
+        $stockErrors = [];
+        foreach ($items as $item) {
+            if ($item['cantidad_solicitada'] > $item['stock_actual']) {
+                $stockErrors[] = $item['nombreProducto'] . " (Solicitado: " . $item['cantidad_solicitada'] . ", Disponible: " . $item['stock_actual'] . ")";
+            }
+        }
+
+        if (!empty($stockErrors)) {
+            throw new Exception("Stock insuficiente: " . implode(", ", $stockErrors));
+        }
+
+        // Actualizar ticket a aprobado
+        $sqlAprobar = "UPDATE tickets SET 
+                      estado = 'aprobado', 
+                      fecha_aprobacion = NOW(), 
+                      aprobado_por = ? 
+                      WHERE idTicket = ?";
+        $stmtAprobar = $pdo->prepare($sqlAprobar);
+        $stmtAprobar->execute([$usuario_id, $ticket_id]);
+
+        // Actualizar items con cantidad aprobada
+        $sqlUpdateItem = "UPDATE ticket_items SET cantidad_aprobada = cantidad_solicitada WHERE ticket_id = ?";
+        $stmtUpdateItem = $pdo->prepare($sqlUpdateItem);
+        $stmtUpdateItem->execute([$ticket_id]);
+
+        // Descontar del inventario
+        $sqlUpdateStock = "UPDATE productos p 
+                          JOIN ticket_items ti ON p.idProducto = ti.producto_id 
+                          SET p.cantidad = p.cantidad - ti.cantidad_solicitada 
+                          WHERE ti.ticket_id = ?";
+        $stmtUpdateStock = $pdo->prepare($sqlUpdateStock);
+        $stmtUpdateStock->execute([$ticket_id]);
+
+        $pdo->commit();
+        
+        $_SESSION['success'] = "✅ Ticket #" . $ticket['numero_ticket'] . " aprobado correctamente. Stock actualizado.";
+
+    } catch (Exception $e) {
+        $pdo->rollBack();
+        $_SESSION['error'] = "❌ Error al aprobar ticket: " . $e->getMessage();
     }
 
-    $sql_ticket = "UPDATE tickets SET estado = 'aprobado', fecha_aprobacion = NOW(), aprobado_por = ? WHERE idTicket = ?";
-    $stmt_ticket = $pdo->prepare($sql_ticket);
-    $stmt_ticket->execute([$admin_id, $ticket_id]);
-
-    $pdo->commit();
-
-    $_SESSION['ticket_success'] = "✅ Ticket aprobado exitosamente";
-    header("Location: detalle_ticket.php?id=" . $ticket_id);
+    header("Location: tickets.php");
     exit();
-
-} catch (Exception $e) {
-    $pdo->rollBack();
-    $_SESSION['ticket_error'] = "❌ Error al aprobar el ticket: " . $e->getMessage();
-    header("Location: detalle_ticket.php?id=" . $ticket_id);
+} else {
+    header("Location: tickets.php");
     exit();
 }
-?>
