@@ -283,7 +283,7 @@ $items = $stmt_items->fetchAll();
             </div>
 
             <div class="card">
-                <h3>📦 Materiales Solicitados</h3>
+                <h3>Materiales Solicitados</h3>
                 <?php if (count($items) > 0): ?>
                 <table class="table">
                     <thead>
@@ -329,14 +329,14 @@ $items = $stmt_items->fetchAll();
     <h3>⚡ Acciones de Administrador</h3>
     <div style="display: flex; gap: 10px; flex-wrap: wrap;">
         <?php if ($ticket['estado'] == 'pendiente'): ?>
-            <button onclick="confirmarAccion('aprobar', <?php echo $ticket_id; ?>)" class="btn btn-success">✅ Aprobar Ticket</button>
-            <button onclick="confirmarAccion('rechazar', <?php echo $ticket_id; ?>)" class="btn" style="background: #dc3545; color: white;">❌ Rechazar Ticket</button>
+            <button onclick="confirmarAccion('aprobar', <?php echo $ticket_id; ?>)" class="btn btn-success">Aprobar Ticket</button>
+            <button onclick="confirmarAccion('rechazar', <?php echo $ticket_id; ?>)" class="btn" style="background: #dc3545; color: white;">Rechazar Ticket</button>
         <?php elseif ($ticket['estado'] == 'aprobado'): ?>
-            <button onclick="confirmarAccion('entregar', <?php echo $ticket_id; ?>)" class="btn" style="background: #17a2b8; color: white;">📦 Marcar como Entregado</button>
+            <button onclick="confirmarAccion('entregar', <?php echo $ticket_id; ?>)" class="btn" style="background: #17a2b8; color: white;">Marcar como Entregado</button>
         <?php endif; ?>
         
         <?php if ($ticket['estado'] == 'rechazado' || $ticket['estado'] == 'entregado'): ?>
-            <button onclick="confirmarAccion('reactivar', <?php echo $ticket_id; ?>)" class="btn" style="background: #ffc107; color: black;">🔄 Reactivar Ticket</button>
+            <button onclick="confirmarAccion('reactivar', <?php echo $ticket_id; ?>)" class="btn" style="background: #ffc107; color: black;">Reactivar Ticket</button>
         <?php endif; ?>
     </div>
 </div>
