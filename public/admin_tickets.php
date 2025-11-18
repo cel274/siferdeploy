@@ -291,19 +291,19 @@ $totales = $stmt_totales->fetch()['total'];
             <!-- Filtros -->
             <div class="filtros">
                 <a href="?estado=pendiente" class="filtro-btn <?php echo $estado == 'pendiente' ? 'active' : ''; ?>">
-                    ⏳ Pendientes (<?php echo $pendientes; ?>)
+                    Pendientes (<?php echo $pendientes; ?>)
                 </a>
                 <a href="?estado=aprobado" class="filtro-btn <?php echo $estado == 'aprobado' ? 'active' : ''; ?>">
-                    ✅ Aprobados (<?php echo $aprobados; ?>)
+                    Aprobados (<?php echo $aprobados; ?>)
                 </a>
                 <a href="?estado=rechazado" class="filtro-btn <?php echo $estado == 'rechazado' ? 'active' : ''; ?>">
-                    ❌ Rechazados (<?php echo $rechazados; ?>)
+                    Rechazados (<?php echo $rechazados; ?>)
                 </a>
                 <a href="?estado=entregado" class="filtro-btn <?php echo $estado == 'entregado' ? 'active' : ''; ?>">
-                    📦 Entregados
+                    Entregados
                 </a>
                 <a href="?estado=todos" class="filtro-btn <?php echo $estado == 'todos' ? 'active' : ''; ?>">
-                    📋 Todos (<?php echo $totales; ?>)
+                    Todos (<?php echo $totales; ?>)
                 </a>
             </div>
 
@@ -344,14 +344,14 @@ $totales = $stmt_totales->fetch()['total'];
                             <td><?php echo date('d/m/Y H:i', strtotime($ticket['fecha_solicitud'])); ?></td>
                             <td>
                                 <a href="detalle_ticket.php?id=<?php echo $ticket['idTicket']; ?>" class="btn btn-primary">
-                                    👁️ Ver
+                                    Ver
                                 </a>
                                 <?php if ($ticket['estado'] == 'pendiente'): ?>
                                 <a href="aprobar_ticket.php?id=<?php echo $ticket['idTicket']; ?>" class="btn btn-success" onclick="return confirm('¿Aprobar esta solicitud? Se descontará del stock.')">
-                                    ✅ Aprobar
+                                    Aprobar
                                 </a>
                                 <a href="rechazar_ticket.php?id=<?php echo $ticket['idTicket']; ?>" class="btn btn-danger" onclick="return confirm('¿Rechazar esta solicitud?')">
-                                    ❌ Rechazar
+                                    Rechazar
                                 </a>
                                 <?php endif; ?>
                             </td>
