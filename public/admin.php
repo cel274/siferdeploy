@@ -196,7 +196,7 @@ try {
         </div>
 
             <div class="admin-section">
-                <h2>Gestión de Productos</h2>
+                <h2>Gestión de Usuarios</h2>
                 <div class="admin-actions">
                     <button class="admin-btn" onclick="abrirModal('agregarUsuario')">
                         <i class='bx bx-plus-circle'></i>
